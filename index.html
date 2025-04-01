@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>3D Konfigurátor pásku</title>
     <script type="module"  src="https://cdnjs.cloudflare.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+    <script type="module">
+      import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js';
+      window.THREE = THREE; // Explicitně přiřazení THREE do globálního objektu
+    </script>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -62,7 +66,7 @@ model-viewer {
     <h3>Watch band configurator 3D</h3>
     <model-viewer
       id="watchModel"
-      src="https://cdn.jsdelivr.net/gh/phovorka/GLB/apple watch0.glb"
+      src="https://cdn.jsdelivr.net/gh/phovorka/GLB/watch_try_2.glb"
       camera-controls
       auto-rotate
     >
@@ -89,7 +93,7 @@ model-viewer {
         onclick="changeColor([1, 0, 0, 1])"
       ></button>
       <input type="color" id="customColor" oninput="customColorChange()" />
-      <input type="file" id="textureUpload" accept="image/*" />
+      <input type="file" id="texture-input" accept="image/*" />
     </div>
 
     <script>
@@ -120,24 +124,34 @@ model-viewer {
         return [r, g, b, 1];
       }
 
-      document.getElementById('textureUpload').addEventListener('change', async function (event) {
-        const file = event.target.files[0];
-        if (!file) return;
+    document.getElementById('texture-input').addEventListener('change', async function (event) {
+    const file = event.target.files[0];
+    if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = async function (e) {
-          const modelViewer = document.querySelector('#watchModel');
-          await modelViewer.updateComplete; // Ensure model is loaded
-          
-          const material = modelViewer.model?.materials?.[0]; // Adjust index if needed
-          if (material) {
-            material.pbrMetallicRoughness.baseColorTexture.setTexture(e.target.result);
-          } else {
-            console.warn("Material not found. Check the model structure.");
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+    const reader = new FileReader();
+    reader.onload = async function (e) {
+      const modelViewer = document.querySelector('#watchModel');
+      await modelViewer.updateComplete;
+      
+       // Wait for the model to be fully loaded
+       const model = modelViewer.model;
+      if (model) {
+        // Check the materials of the model
+        const material = model.materials[1];
+        if (material) {
+        const texture = await modelViewer.createTexture(e.target.result);
+         material.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
+       material.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 1]); // Ensure neutral base color to apply the texture correctly
+
+        } else {
+          console.warn("Material not found. Check the model structure.");
+        }
+  
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
     </script>
   </body>
 </html>
