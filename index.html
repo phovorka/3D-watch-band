@@ -4,8 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>3D Konfigurátor pásku</title>
-    <script type="module" src="https://unpkg.com/@google/model-viewer"></script>
-    <link rel="stylesheet" href="styles.css" />
+    <script type="module"  src="https://cdnjs.cloudflare.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -21,6 +20,42 @@
         margin: 5px;
         cursor: pointer;
       }
+      /* App.css */
+.watch-configurator {
+  text-align: center;
+  font-family: sans-serif;
+}
+
+.title {
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+
+model-viewer {
+  width: 100%;
+  height: 400px;
+  margin-bottom: 20px;
+}
+
+.color-picker {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.color-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.color-button:hover {
+  transform: scale(1.1);
+}
+
     </style>
   </head>
   <body>
@@ -53,8 +88,8 @@
         style="background-color: red"
         onclick="changeColor([1, 0, 0, 1])"
       ></button>
-
       <input type="color" id="customColor" oninput="customColorChange()" />
+      <input type="file" id="textureUpload" accept="image/*" />
     </div>
 
     <script>
@@ -84,6 +119,25 @@
         let b = parseInt(hex.substring(5, 7), 16) / 255;
         return [r, g, b, 1];
       }
+
+      document.getElementById('textureUpload').addEventListener('change', async function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async function (e) {
+          const modelViewer = document.querySelector('#watchModel');
+          await modelViewer.updateComplete; // Ensure model is loaded
+          
+          const material = modelViewer.model?.materials?.[0]; // Adjust index if needed
+          if (material) {
+            material.pbrMetallicRoughness.baseColorTexture.setTexture(e.target.result);
+          } else {
+            console.warn("Material not found. Check the model structure.");
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     </script>
   </body>
 </html>
