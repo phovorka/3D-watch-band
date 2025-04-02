@@ -66,7 +66,7 @@ model-viewer {
     <h3>Watch band configurator 3D</h3>
     <model-viewer
       id="watchModel"
-      src="https://cdn.jsdelivr.net/gh/phovorka/GLB/watch_try_2.glb"
+      src="https://cdn.jsdelivr.net/gh/phovorka/GLB/apple-watch2.glb"
       camera-controls
       auto-rotate
     >
@@ -104,7 +104,7 @@ model-viewer {
       function changeColor(color) {
         const model = document.querySelector('#watchModel');
         if (window.modelLoaded && model.model) {
-          const material = model.model.materials[1];
+          const material = model.model.materials[8];
           if (material) {
             material.pbrMetallicRoughness.setBaseColorFactor(color);
           }
@@ -137,7 +137,7 @@ model-viewer {
        const model = modelViewer.model;
       if (model) {
         // Check the materials of the model
-        const material = model.materials[1];
+        const material = model.materials[8];
         if (material) {
         const texture = await modelViewer.createTexture(e.target.result);
          material.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
