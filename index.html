@@ -4,155 +4,1112 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>3D Konfigurátor řemínku</title>
-    <script type="module"  src="https://cdnjs.cloudflare.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+    <script
+      type="module"
+      src="https://cdnjs.cloudflare.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"
+    ></script>
     <script type="module">
       import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js';
-      window.THREE = THREE; // Explicitně přiřazení THREE do globálního objektu
+      window.THREE = THREE;
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+     
+      * {
+
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
       body {
-        font-family: Arial, sans-serif;
+        font-family: 'Poppins', sans-serif;
+        text-align: center;
+        background: #f9f9f9;
+        
+      }
+
+      header {
+        text-align: center;
+        padding: 20px;
+        background: linear-gradient(180deg, #2c3e50, #4ca1af);
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         text-align: center;
       }
-      .color-picker {
-        margin-top: 10px;
+
+      @media (min-width: 600px) {
+        .main-content {
+          flex-direction: column; /* na mobilu pod sebe */
+        }
       }
-      .color-button {
-        width: 40px;
-        height: 40px;
-        border: none;
+
+      .main-content {
+        display: flex;
+        flex-direction: row; /* defaultně vedle sebe */
+        flex-wrap: wrap; /* umožní zalomení na menších šířkách */
+        justify-content: center;
+       
         margin: 5px;
+        gap: 0px;
+        min-height: 600px;
+      }
+
+            /*panels*/
+       .left-panel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 5px;
+        flex: 3;
+        min-width: 280px;
+        width: 100%;
+        min-height: 300px;
+      }
+
+      .right-panel {
+        flex: 3;
+        width: 100%;
+        max-width: 600px;
+        margin: 5px;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(to TOP, #d3d3d3, #4ca1af);
+      }
+
+      .tab {
+        padding: 5px;
+        margin: 15px 5px 15px 5px;
+        text-align: center;
+      }
+
+      .logo {
+        width: 40px;
+        height: 28px;
+        flex-shrink: 0;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+        background: linear-gradient(180deg, #ff9a9e, #fad0c4);
+
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .subtext {
+        font-size: 0.7rem;
+        font-weight: 400;
+        color: #dddddd;
+      }
+
+
+      .controls label {
+        display: flex;
+        margin-top: 10px;
+        font-size: 0.7rem;
+      }
+
+      .control-pair {
+        display: table-caption;
+        align-items: center;
+      }
+
+      .control-pair input[type='range'] {
+        flex: 1;
+        height: 20px;
+      }
+
+      .control-pair input[type='number'] {
+        width: 40px;
+        padding: 2px;
+        font-size: 0.8rem;
+      }
+      .controls {
+        margin-top: 8px;
+      }
+      .control-pair {
+        display: flex;
+        align-items: center;
+      }
+      .control-pair input[type='range'] {
+        flex: 1;
+        margin-right: 8px;
+      }
+      .control-pair input[type='number'] {
+        width: 50px;
+      }
+      canvas.preview {
+        border: 1px solid #ccc;
+        margin-top: 8px;
+        max-width: 100%;
+      }
+      button.apply-btn {
+        margin-top: 8px;
+        padding: 6px 12px;
+        margin-bottom: 8px;
+      }
+
+      .collapsible.open {
+        display: block;
+      }
+      .toggle-button {
+        background: none;
+        border: none;
+        font-size: 1em;
         cursor: pointer;
       }
-      /* App.css */
-.watch-configurator {
-  text-align: center;
-  font-family: sans-serif;
-}
+      .card {
+        background-color: rgba(
+          255,
+          255,
+          255,
+          0.7
+        ); /* poloprůhledné bílé pozadí */
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
 
-.title {
-  margin-bottom: 20px;
-  font-size: 2rem;
-}
 
-model-viewer {
-  width: 100%;
-  height: 400px;
-  margin-bottom: 20px;
-}
+      model-viewer {
+        width: 100%;
+        height: 100%;
+      }
 
-.color-picker {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
+      .option {
+        display: flex;
+        align-items: center;
+        max-width: 400px;
+      }
+      .option-img {
+        width: 20px;
+        height: 20px;
+        margin: 10px;
+      }
 
-.color-button {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid #d1d5db;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
+      .option-title {
+        font-weight: bold;
+      }
 
-.color-button:hover {
-  transform: scale(1.1);
-}
+      .option-desc {
+        font-size: 12px;
+        color: #555;
+      }
 
+
+
+      .exPDF {
+        margin-top: 10px;
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #4caf508c;
+        color: #333;
+        border: 1px solid white;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        margin-bottom:15px;
+        transition: all 0.3s ease;
+      }
+      .exPDF:hover {
+        background-color: #45a049;
+        color: white;
+        margin-bottom:20px;
+      }
+      /*collapsible*/
+      .collapsible {
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .active,
+      .collapsible:hover {
+        color: blue;
+      }
+
+      .content {
+        padding: 0 18px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+        margin-top: 5px;
+      }
+
+      /* Color Buttons Styling */
+      .colorBtn {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid #ccc;
+        cursor: pointer;
+        margin: 5px;
+        display: inline-block;
+        vertical-align: middle; /* Align buttons nicely */
+      }
+
+      #colorBtnBlack {
+        background-color: black;
+      }
+
+      #colorBtnWhite {
+        background-color: white;
+      }
     </style>
   </head>
   <body>
-    <h3>Watch band configurator 3D</h3>
-    <model-viewer
-      id="watchModel"
-      src="https://cdn.jsdelivr.net/gh/phovorka/GLB/apple-watch2.glb"
-      camera-controls
-      auto-rotate
-      AR
-    >
-    </model-viewer>
-    <div class="color-picker">
-      <button
-        class="color-button"
-        style="background-color: black"
-        onclick="changeColor([0, 0, 0, 1])"
-      ></button>
-      <button
-        class="color-button"
-        style="background-color: brown"
-        onclick="changeColor([0.6, 0.3, 0.1, 1])"
-      ></button>
-      <button
-        class="color-button"
-        style="background-color: blue"
-        onclick="changeColor([0, 0, 1, 1])"
-      ></button>
-      <button
-        class="color-button"
-        style="background-color: red"
-        onclick="changeColor([1, 0, 0, 1])"
-      ></button>
-      <input type="color" id="customColor" oninput="customColorChange()" />
-      <input type="file" id="texture-input" accept="image/*" />
+    <header>
+      <h1>  
+        <!-- Jednoduché SVG logo -->
+
+        STRAPrint 0.9
+      </h1>
+      <div class="subtext">KONFIGURÁTOR VLASTNÍHO POTISKU ŘEMÍNKU</div>
+    </header>
+    <div class="main-content">
+
+      <div class="wrapper"></div>
+
+      <div class="left-panel card">
+        <model-viewer
+          id="watchModel"
+          src="https://cdn.jsdelivr.net/gh/phovorka/GLB/UV4.glb"
+          camera-controls
+          tone-mapping="neutral"
+          shadow-intensity="1"
+          camera-orbit="62.4deg 36.93deg 45.19m"
+          field-of-view="22.31deg"
+        >
+        </model-viewer>
+      </div>
+      <div class="right-panel card">
+        <h4>Nastavení </h4>
+        <div class="tab card">
+          <div class="option collapsible">
+            <div class="option-img">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                <path
+                  d="M496 384H160v-16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v16H16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h80v16c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-16h336c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16zm0-160h-80v-16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v16H16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h336v16c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-16h80c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16zm0-160H288V48c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v16H16C7.2 64 0 71.2 0 80v32c0 8.8 7.2 16 16 16h208v16c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-16h208c8.8 0 16-7.2 16-16V80c0-8.8-7.2-16-16-16z"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="option-title">Potisk "pravý"</div>
+              <div class="option-desc">(2D náhled)</div>
+            </div>
+          </div>
+
+          <div class="controls content" id="material4Controls">
+            <div class="controls">
+              <label>Nahraj obrázek</label>
+              <input type="file" id="textureInput4" accept="image/*" />
+              <canvas
+                id="preview4"
+                class="preview"
+                width="1024"
+                height="1024"
+              ></canvas>
+              <label>Posun X:</label>
+              <div class="control-pair">
+                <input
+                  type="range"
+                  id="offsetX4"
+                  min="-200"
+                  max="200"
+                  step="1"
+                  value="0"
+                />
+                <input
+                  type="number"
+                  id="offsetX4Number"
+                  min="-200"
+                  max="200"
+                  step="1"
+                  value="0"
+                />
+              </div>
+
+              <label>Posun Y:</label>
+              <div class="control-pair">
+                <input
+                  type="range"
+                  id="offsetY4"
+                  min="-200"
+                  max="200"
+                  step="1"
+                  value="0"
+                />
+                <input
+                  type="number"
+                  id="offsetY4Number"
+                  min="-200"
+                  max="200"
+                  step="1"
+                  value="0"
+                />
+              </div>
+
+              <label>Měřítko:</label>
+              <div class="control-pair">
+                <input
+                  type="range"
+                  id="scale4"
+                  min="0.1"
+                  max="4"
+                  step="0.1"
+                  value="1"
+                />
+                <input
+                  type="number"
+                  id="scale4Number"
+                  min="0.1"
+                  max="4"
+                  step="0.1"
+                  value="1"
+                />
+              </div>
+
+              <label>Rotace (°):</label>
+              <div class="control-pair">
+                <input
+                  type="range"
+                  id="rotation4"
+                  min="0"
+                  max="360"
+                  step="1"
+                  value="0"
+                />
+                <input
+                  type="number"
+                  id="rotation4Number"
+                  min="0"
+                  max="360"
+                  step="1"
+                  value="0"
+                />
+              </div>
+
+              <button id="apply4" class="apply-btn">Aplikovat na 3D</button>
+              <button id="reset4" class="apply-btn">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab card">
+          <div class="option collapsible">
+            <div class="option-img">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                <path
+                  d="M496 384H160v-16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v16H16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h80v16c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-16h336c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16zm0-160h-80v-16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v16H16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h336v16c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-16h80c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16zm0-160H288V48c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v16H16C7.2 64 0 71.2 0 80v32c0 8.8 7.2 16 16 16h208v16c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-16h208c8.8 0 16-7.2 16-16V80c0-8.8-7.2-16-16-16z"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="option-title">Potisk "levý"</div>
+              <div class="option-desc">(2D náhled)</div>
+            </div>
+          </div>
+
+          <div class="controls content" id="material3Controls">
+            <div class="controls">
+              <label>Nahraj obrázek</label>
+              <input type="file" id="textureInput3" accept="image/*" />
+              <canvas
+                id="preview3"
+                class="preview"
+                width="1024"
+                height="1024"
+              ></canvas>
+
+              <label>Posun X:</label>
+              <div class="control-pair">
+                <input
+                  type="range"
+                  id="offsetX3"
+                  min="-200"
+                  max="200"
+                  step="1"
+                  value="0"
+                />
+                <input
+                  type="number"
+                  id="offsetX3Number"
+                  min="-200"
+                  max="200"
+                  step="1"
+                  value="0"
+                />
+              </div>
+
+              <label>Posun Y:</label>
+              <div class="control-pair">
+                <input
+                  type="range"
+                  id="offsetY3"
+                  min="-200"
+                  max="200"
+                  step="1"
+                  value="0"
+                />
+                <input
+                  type="number"
+                  id="offsetY3Number"
+                  min="-200"
+                  max="200"
+                  step="1"
+                  value="0"
+                />
+              </div>
+
+              <label>Měřítko:</label>
+              <div class="control-pair">
+                <input
+                  type="range"
+                  id="scale3"
+                  min="0.1"
+                  max="4"
+                  step="0.1"
+                  value="1"
+                />
+                <input
+                  type="number"
+                  id="scale3Number"
+                  min="0.1"
+                  max="4"
+                  step="0.1"
+                  value="1"
+                />
+              </div>
+
+              <label>Rotace (°):</label>
+              <div class="control-pair">
+                <input
+                  type="range"
+                  id="rotation3"
+                  min="0"
+                  max="360"
+                  step="1"
+                  value="0"
+                />
+                <input
+                  type="number"
+                  id="rotation3Number"
+                  min="0"
+                  max="360"
+                  step="1"
+                  value="0"
+                />
+              </div>
+
+              <button id="apply3" class="apply-btn">Aplikovat na 3D</button>
+              <button id="reset3" class="apply-btn">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab card">
+        <div class="option collapsible">
+          <div class="option-img">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+              <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+              <path
+                d="M496 384H160v-16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v16H16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h80v16c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-16h336c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16zm0-160h-80v-16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v16H16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h336v16c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-16h80c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16zm0-160H288V48c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v16H16C7.2 64 0 71.2 0 80v32c0 8.8 7.2 16 16 16h208v16c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-16h208c8.8 0 16-7.2 16-16V80c0-8.8-7.2-16-16-16z"
+              />
+            </svg>
+          </div>
+          <div>
+            <div class="option-title">Barva</div>
+            <div class="option-desc">(řemínku)</div>
+          </div>
+        </div>
+        <div class="controls content" id="">
+          <div class="controls">
+            <label>Vyber barvu</label>
+            <button id="colorBtnWhite" class="colorBtn" onclick="changeColor([1, 1, 1, 1])">
+            <button id="colorBtnBlack" class="colorBtn" onclick="changeColor([0, 0, 0, 1])">
+          </div>
+        </div>
+      </div>
+
+        <button id="exportPdfBtn" class="exPDF">
+          <img
+            src="https://img.icons8.com/ios-filled/24/000000/export-pdf.png"
+            alt="PDF Icon"
+          />
+          Export do PDF
+        </button>
+      </div>
     </div>
+    <script>
+      //potisk levý
+      const previewCanvas3 = document.getElementById('preview3');
+      const ctx3 = previewCanvas3.getContext('2d');
+      let img3 = new Image();
+      // Levý potisk – výchozí obrázek
+      img3.crossOrigin = 'anonymous';
+      img3.src = 'https://cdn.jsdelivr.net/gh/phovorka/GLB/potiskL.jpg'; // změň na URL výchozího obrázku
+      img3.onload = () => {
+        renderPreview3();
+      };
+      let maskImg3 = new Image();
+      maskImg3.crossOrigin = 'anonymous';
+      maskImg3.src = 'https://cdn.jsdelivr.net/gh/phovorka/GLB/potiskLmask.png';
+
+      maskImg3.onload = () => {
+        // Nastavíme velikost canvasu podle velikosti masky
+        previewCanvas3.width = maskImg3.width;
+        previewCanvas3.height = maskImg3.height;
+
+        // Poté vykreslíme masku a obrázek
+        renderPreview3();
+      };
+
+      const settings3 = { offsetX: 0, offsetY: 0, scale: 1, rotation: 0 };
+
+      function renderPreview3(forceOpaque = false) {
+        const w = previewCanvas3.width;
+        const h = previewCanvas3.height;
+        ctx3.clearRect(0, 0, w, h);
+
+        // === 1. MASKA jako pozadí ===
+        if (maskImg3 && maskImg3.complete && maskImg3.naturalWidth > 0) {
+          ctx3.save();
+          ctx3.globalAlpha = 1.0; // Maska bude neprůhledná
+          ctx3.drawImage(maskImg3, 0, 0, w, h); // natáhneme masku na celý canvas
+          ctx3.restore();
+        }
+
+        // === 2. HLAVNÍ OBRÁZEK (s průhledností, transformacemi) ===
+        if (img3 && img3.complete && img3.naturalWidth > 0) {
+          ctx3.save();
+          ctx3.translate(w / 2 + settings3.offsetX, h / 2 + settings3.offsetY);
+          ctx3.rotate((settings3.rotation * Math.PI) / 180);
+          ctx3.scale(settings3.scale, settings3.scale);
+
+          ctx3.globalAlpha = forceOpaque ? 1.0 : 0.5;
+          ctx3.drawImage(img3, -img3.width / 2, -img3.height / 2);
+          ctx3.restore();
+        }
+      }
+
+      function bindDual(id, prop, settingsObj, callback) {
+        const range = document.getElementById(id);
+        const num = document.getElementById(id + 'Number');
+        const sync = (val) => {
+          settingsObj[prop] = parseFloat(val);
+          range.value = val;
+          num.value = val;
+          renderPreview3();
+        };
+        range.addEventListener('input', (e) => sync(e.target.value));
+        num.addEventListener('input', (e) => sync(e.target.value));
+      }
+
+      //event pro tlacitko nahrani obrazku
+      document
+        .getElementById('textureInput3')
+        .addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            img3.src = ev.target.result;
+            img3.onload = () => {
+              renderPreview3();
+            };
+          };
+          reader.readAsDataURL(file);
+        });
+
+      bindDual('offsetX3', 'offsetX', settings3);
+      bindDual('offsetY3', 'offsetY', settings3);
+      bindDual('scale3', 'scale', settings3);
+      bindDual('rotation3', 'rotation', settings3);
+
+      //Event pro aplikaci obrazku na 3D model
+      document.getElementById('apply3').addEventListener('click', async () => {
+        if (!img3.complete || img3.naturalWidth === 0) return;
+
+        const w = maskImg3.naturalWidth || img3.naturalWidth;
+        const h = maskImg3.naturalHeight || img3.naturalHeight;
+        // Vytvoření virtuálního canvasu
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = w;
+        tempCanvas.height = h;
+        const tempCtx = tempCanvas.getContext('2d');
+
+        const offsetX = settings3.offsetX;
+        const offsetY = settings3.offsetY;
+        const scale = settings3.scale;
+
+        // 1. Maska
+        if (maskImg3.complete && maskImg3.naturalWidth > 0) {
+          tempCtx.drawImage(maskImg3, 0, 0, w, h);
+        }
+
+        // 2. Obrázek
+        tempCtx.save();
+        tempCtx.translate(w / 2 + offsetX, h / 2 + offsetY);
+        tempCtx.rotate((settings3.rotation * Math.PI) / 180);
+        tempCtx.scale(scale, scale);
+        tempCtx.globalAlpha = 1.0;
+        tempCtx.drawImage(img3, -img3.width / 2, -img3.height / 2);
+        tempCtx.restore();
+
+        const modelViewer = document.getElementById('watchModel');
+        await modelViewer.updateComplete;
+
+        const dataUrl = tempCanvas.toDataURL();
+        const texture = await modelViewer.createTexture(dataUrl);
+        const materialIndex = 14; // 13 = pravá strana, 14 = levá strana
+        const mat = modelViewer.model.materials[materialIndex];
+        mat.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
+      });
+    </script>
 
     <script>
-      document.querySelector('#watchModel').addEventListener('load', () => {
+      // === PRAVÝ POTISK ===
+      const previewCanvas4 = document.getElementById('preview4');
+      const ctx4 = previewCanvas4.getContext('2d');
+      let img4 = new Image();
+      // Pravý potisk – výchozí obrázek
+      img4.crossOrigin = 'anonymous';
+      img4.src = 'https://cdn.jsdelivr.net/gh/phovorka/GLB/potiskR.jpg'; // změň na URL výchozího obrázku
+      img4.onload = () => {
+        renderPreview4();
+      };
+      let maskImg4 = new Image();
+      maskImg4.crossOrigin = 'anonymous';
+      maskImg4.src = 'https://cdn.jsdelivr.net/gh/phovorka/GLB/potiskRmask.png';
+
+      const settings4 = { offsetX: 0, offsetY: 0, scale: 1, rotation: 0 };
+
+      maskImg4.onload = () => {
+        previewCanvas4.width = maskImg4.width;
+        previewCanvas4.height = maskImg4.height;
+        renderPreview4();
+      };
+
+      function renderPreview4(forceOpaque = false) {
+        const w = previewCanvas4.width;
+        const h = previewCanvas4.height;
+        ctx4.clearRect(0, 0, w, h);
+
+        // Maska
+        if (maskImg4 && maskImg4.complete && maskImg4.naturalWidth > 0) {
+          ctx4.save();
+          ctx4.globalAlpha = 1.0;
+          ctx4.drawImage(maskImg4, 0, 0, w, h);
+          ctx4.restore();
+        }
+
+        // Hlavní obrázek
+        if (img4 && img4.complete && img4.naturalWidth > 0) {
+          ctx4.save();
+          ctx4.translate(w / 2 + settings4.offsetX, h / 2 + settings4.offsetY);
+          ctx4.rotate((settings4.rotation * Math.PI) / 180);
+          ctx4.scale(settings4.scale, settings4.scale);
+          ctx4.globalAlpha = forceOpaque ? 1.0 : 0.5;
+          ctx4.drawImage(img4, -img4.width / 2, -img4.height / 2);
+          ctx4.restore();
+        }
+      }
+
+      function bindDualRight(id, prop) {
+        const range = document.getElementById(id);
+        const num = document.getElementById(id + 'Number');
+        const sync = (val) => {
+          settings4[prop] = parseFloat(val);
+          range.value = val;
+          num.value = val;
+          renderPreview4();
+        };
+        range.addEventListener('input', (e) => sync(e.target.value));
+        num.addEventListener('input', (e) => sync(e.target.value));
+      }
+
+      // Obrázek
+      document
+        .getElementById('textureInput4')
+        .addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            img4.src = ev.target.result;
+            img4.onload = () => {
+              renderPreview4();
+            };
+          };
+          reader.readAsDataURL(file);
+        });
+
+      bindDualRight('offsetX4', 'offsetX');
+      bindDualRight('offsetY4', 'offsetY');
+      bindDualRight('scale4', 'scale');
+      bindDualRight('rotation4', 'rotation');
+
+      // Aplikace na 3D
+      document.getElementById('apply4').addEventListener('click', async () => {
+        if (!img4.complete || img4.naturalWidth === 0) return;
+
+        const w = previewCanvas4.width;
+        const h = previewCanvas4.height;
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = w;
+        tempCanvas.height = h;
+        const tempCtx = tempCanvas.getContext('2d');
+
+        // Maska
+        if (maskImg4.complete && maskImg4.naturalWidth > 0) {
+          tempCtx.drawImage(maskImg4, 0, 0, w, h);
+        }
+
+        // Obrázek
+        tempCtx.save();
+        tempCtx.translate(w / 2 + settings4.offsetX, h / 2 + settings4.offsetY);
+        tempCtx.rotate((settings4.rotation * Math.PI) / 180);
+        tempCtx.scale(settings4.scale, settings4.scale);
+        tempCtx.globalAlpha = 1.0;
+        tempCtx.drawImage(img4, -img4.width / 2, -img4.height / 2);
+        tempCtx.restore();
+
+        const modelViewer = document.getElementById('watchModel');
+        const materialIndex = 13; // 13 = pravá strana, 14 = levá strana
+        await modelViewer.updateComplete;
+
+        const dataUrl = tempCanvas.toDataURL();
+        const texture = await modelViewer.createTexture(dataUrl);
+        const mat = modelViewer.model.materials[materialIndex]; // pravý potisk
+        mat.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
+      });
+    </script>
+
+    <script type="module">
+      // === NASTAVENÍ DEFAULTNICH TEXTUR NA 3D - PRAVÁ ===
+      const modelViewer = document.getElementById('watchModel');
+      const previewCanvas4 = document.getElementById('preview4');
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d');
+
+      const waitForImage = (img) =>
+        new Promise((resolve) => {
+          if (img.complete && img.naturalWidth > 0) {
+            resolve();
+          } else {
+            img.onload = () => resolve();
+          }
+        });
+
+      async function applyDefaultTextureRight() {
+        await waitForImage(img4);
+        await waitForImage(maskImg4);
+
+        tempCanvas.width = previewCanvas4.width;
+        tempCanvas.height = previewCanvas4.height;
+
+        const w = tempCanvas.width;
+        const h = tempCanvas.height;
+
+        // 1. Maska
+        tempCtx.clearRect(0, 0, w, h);
+        tempCtx.drawImage(maskImg4, 0, 0, w, h);
+
+        // 2. Obrázek
+        tempCtx.save();
+        tempCtx.translate(w / 2 + settings4.offsetX, h / 2 + settings4.offsetY);
+        tempCtx.rotate((settings4.rotation * Math.PI) / 180);
+        tempCtx.scale(settings4.scale, settings4.scale);
+        tempCtx.drawImage(img4, -img4.width / 2, -img4.height / 2);
+        tempCtx.restore();
+
+        await modelViewer.updateComplete;
+
+        const dataUrl = tempCanvas.toDataURL();
+        const texture = await modelViewer.createTexture(dataUrl);
+        const mat = modelViewer.model.materials[13];
+        mat.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
+      }
+
+      modelViewer.addEventListener('load', () => {
+        applyDefaultTextureRight();
+      });
+    </script>
+
+    <script type="module">
+      // === NASTAVENÍ DEFAULTNICH TEXTUR NA 3D - LEVA ===
+      const modelViewer = document.getElementById('watchModel');
+      const previewCanvas3 = document.getElementById('preview3');
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d');
+
+      const waitForImage = (img) =>
+        new Promise((resolve) => {
+          if (img.complete && img.naturalWidth > 0) {
+            resolve();
+          } else {
+            img.onload = () => resolve();
+          }
+        });
+
+      async function applyDefaultTextureLeft() {
+        await waitForImage(img3);
+        await waitForImage(maskImg3);
+
+        tempCanvas.width = previewCanvas3.width;
+        tempCanvas.height = previewCanvas3.height;
+
+        const w = tempCanvas.width;
+        const h = tempCanvas.height;
+
+        // 1. Maska
+        tempCtx.clearRect(0, 0, w, h);
+        tempCtx.drawImage(maskImg4, 0, 0, w, h);
+
+        // 2. Obrázek
+        tempCtx.save();
+        tempCtx.translate(w / 2 + settings3.offsetX, h / 2 + settings3.offsetY);
+        tempCtx.rotate((settings3.rotation * Math.PI) / 180);
+        tempCtx.scale(settings3.scale, settings3.scale);
+        tempCtx.drawImage(img3, -img3.width / 2, -img3.height / 2);
+        tempCtx.restore();
+
+        await modelViewer.updateComplete;
+
+        const dataUrl = tempCanvas.toDataURL();
+        const texture = await modelViewer.createTexture(dataUrl);
+        const mat = modelViewer.model.materials[14];
+        mat.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
+      }
+
+      modelViewer.addEventListener('load', () => {
+        applyDefaultTextureLeft();
+      });
+    </script>
+
+    <script>
+      // ====== export do PDF =======
+      function exportPotiskyToPDF() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+          orientation: 'landscape',
+          unit: 'mm',
+          format: 'a4',
+        });
+
+        const pageWidth = 297;
+        const pageHeight = 210;
+        const margin = 20;
+
+        // Vlastní výšky obrázků v milimetrech (nastavitelné)
+        const heightLeft = 152;
+        const heightRight = 124;
+
+        // Přepnout náhledy do "neprůhledného" režimu
+        renderPreview3(true);
+        renderPreview4(true);
+
+        // Ořízne obrázek podle bílé masky
+        function cropByWhiteMask(sourceCanvas, maskImg) {
+          return new Promise((resolve) => {
+            const w = sourceCanvas.width;
+            const h = sourceCanvas.height;
+
+            const resultCanvas = document.createElement('canvas');
+            resultCanvas.width = w;
+            resultCanvas.height = h;
+            const resultCtx = resultCanvas.getContext('2d');
+
+            const tempMaskCanvas = document.createElement('canvas');
+            tempMaskCanvas.width = w;
+            tempMaskCanvas.height = h;
+            const maskCtx = tempMaskCanvas.getContext('2d');
+            maskCtx.drawImage(maskImg, 0, 0, w, h);
+
+            const sourceCtx = sourceCanvas.getContext('2d');
+            const sourceData = sourceCtx.getImageData(0, 0, w, h);
+            const maskData = maskCtx.getImageData(0, 0, w, h);
+            const resultData = resultCtx.createImageData(w, h);
+
+            for (let i = 0; i < sourceData.data.length; i += 4) {
+              const r = maskData.data[i];
+              const g = maskData.data[i + 1];
+              const b = maskData.data[i + 2];
+              const isWhite = r === 255 && g === 255 && b === 255;
+
+              if (isWhite) {
+                resultData.data[i] = sourceData.data[i];
+                resultData.data[i + 1] = sourceData.data[i + 1];
+                resultData.data[i + 2] = sourceData.data[i + 2];
+                resultData.data[i + 3] = 255;
+              } else {
+                resultData.data[i + 3] = 0;
+              }
+            }
+
+            resultCtx.putImageData(resultData, 0, 0);
+            resolve(resultCanvas);
+          });
+        }
+
+        (async () => {
+          // Získání oříznutých obrázků
+          const croppedLeft = await cropByWhiteMask(previewCanvas3, maskImg3);
+          const croppedRight = await cropByWhiteMask(previewCanvas4, maskImg4);
+
+          // Výpočty šířek podle poměru stran
+          const ratioLeft = croppedLeft.width / croppedLeft.height;
+          const ratioRight = croppedRight.width / croppedRight.height;
+
+          const widthLeft = heightLeft * ratioLeft;
+          const widthRight = heightRight * ratioRight;
+
+          // Výpočet pro centrování
+          const totalWidth = widthLeft + widthRight + margin;
+          const startX = (pageWidth - totalWidth) / 2;
+          const startYLeft = (pageHeight - heightLeft) / 2;
+          const startYRight = (pageHeight - heightRight) / 2;
+
+          // Převedení na obrázky
+          const imgDataLeft = croppedLeft.toDataURL('image/png');
+          const imgDataRight = croppedRight.toDataURL('image/png');
+
+          // Přidání obrázků do PDF
+          pdf.addImage(
+            imgDataLeft,
+            'PNG',
+            startX,
+            startYLeft,
+            widthLeft,
+            heightLeft
+          );
+          pdf.addImage(
+            imgDataRight,
+            'PNG',
+            startX + widthLeft + margin,
+            startYRight,
+            widthRight,
+            heightRight
+          );
+
+          // Obnovení náhledů
+          renderPreview3();
+          renderPreview4();
+
+          // Uložení PDF
+          pdf.save('potisky.pdf');
+        })();
+      }
+
+      // Event listener
+      document
+        .getElementById('exportPdfBtn')
+        .addEventListener('click', exportPotiskyToPDF);
+    </script>
+
+    <script>
+      // ====== TOGGLE ======
+      document.addEventListener('DOMContentLoaded', () => {
+        const toggleButtons = document.querySelectorAll('.toggle-button');
+
+        toggleButtons.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const targetId = btn.dataset.target;
+            const target = document.getElementById(targetId);
+
+            const isOpen = target.classList.contains('open');
+            target.classList.toggle('open');
+            btn.textContent = isOpen ? '►' : '▼';
+          });
+        });
+      });
+    </script>
+
+    <script>
+      // ==== Reset tlačítka -  Levý =====
+      document.getElementById('reset3').addEventListener('click', () => {
+        settings3.offsetX = 0;
+        settings3.offsetY = 0;
+        settings3.scale = 1;
+        settings3.rotation = 0;
+
+        document.getElementById('offsetX3').value = 0;
+        document.getElementById('offsetX3Number').value = 0;
+        document.getElementById('offsetY3').value = 0;
+        document.getElementById('offsetY3Number').value = 0;
+        document.getElementById('scale3').value = 1;
+        document.getElementById('scale3Number').value = 1;
+        document.getElementById('rotation3').value = 0;
+        document.getElementById('rotation3Number').value = 0;
+        img3.onload = () => renderPreview3(); // důležité: vykreslit náhled
+        // Pokud je obrázek již načten, vykresli rovnou
+        if (img3.complete) renderPreview3();
+      });
+    </script>
+    <script>
+      // ==== Reset tlačítka -  Pravý =====
+      document.getElementById('reset4').addEventListener('click', () => {
+        settings4.offsetX = 0;
+        settings4.offsetY = 0;
+        settings4.scale = 1;
+        settings4.rotation = 0;
+
+        document.getElementById('offsetX4').value = 0;
+        document.getElementById('offsetX4Number').value = 0;
+        document.getElementById('offsetY4').value = 0;
+        document.getElementById('offsetY4Number').value = 0;
+        document.getElementById('scale4').value = 1;
+        document.getElementById('scale4Number').value = 1;
+        document.getElementById('rotation4').value = 0;
+        document.getElementById('rotation4Number').value = 0;
+        img4.onload = () => renderPreview4(); // důležité: vykreslit náhled
+        // Pokud je obrázek již načten, vykresli rovnou
+        if (img4.complete) renderPreview4();
+      });
+    </script>
+
+    <script>
+      const collapsibles = document.querySelectorAll('.collapsible');
+
+      collapsibles.forEach((button) => {
+        button.addEventListener('click', () => {
+          button.classList.toggle('active');
+
+          const content = button.nextElementSibling; // další prvek hned za tlačítkem
+          if (content.style.maxHeight) {
+            content.style.maxHeight = null;
+          } else {
+            content.style.maxHeight = content.scrollHeight + 'px';
+          }
+        });
+      });
+    </script>
+
+<script >
+// ====== COLOR CHANGE FUNCTIONALITY ======
+document.querySelector('#watchModel').addEventListener('load', () => {
         window.modelLoaded = true;
       });
-
       function changeColor(color) {
-        const model = document.querySelector('#watchModel');
-        if (window.modelLoaded && model.model) {
-          const material = model.model.materials[8];
+        const modela = document.querySelector('#watchModel');
+        if (window.modelLoaded && modela.model) {
+          const material = modela.model.materials[12];
           if (material) {
             material.pbrMetallicRoughness.setBaseColorFactor(color);
           }
         }
       }
 
-      function customColorChange() {
-        const colorPicker = document.getElementById('customColor').value;
-        const rgbaColor = hexToRgba(colorPicker);
-        changeColor(rgbaColor);
-      }
-
-      function hexToRgba(hex) {
-        let r = parseInt(hex.substring(1, 3), 16) / 255;
-        let g = parseInt(hex.substring(3, 5), 16) / 255;
-        let b = parseInt(hex.substring(5, 7), 16) / 255;
-        return [r, g, b, 1];
-      }
-
-    document.getElementById('texture-input').addEventListener('change', async function (event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async function (e) {
-      const modelViewer = document.querySelector('#watchModel');
-      await modelViewer.updateComplete;
-      
-       // Wait for the model to be fully loaded
-       const model = modelViewer.model;
-      if (model) {
-        // Check the materials of the model
-        const material = model.materials[8];
-        if (material) {
-        const texture = await modelViewer.createTexture(e.target.result);
-         material.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
-       material.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 1]); // Ensure neutral base color to apply the texture correctly
-
-        } else {
-          console.warn("Material not found. Check the model structure.");
-        }
-  
-      }
-    };
-    reader.readAsDataURL(file);
-  });
-
-    </script>
+</script>
   </body>
 </html>
